@@ -6,4 +6,5 @@ coordinate = (1,1)
 for i in range(30):
     for k in range(30):
         im.putpixel((i,k),(0,0,0))
-im.show
+im.rotate(270)
+im.show()
