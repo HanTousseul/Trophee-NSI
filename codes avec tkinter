@@ -1,17 +1,20 @@
-from PIL import ImageTk, Image
 from tkinter import *
+from tkinter import filedialog
 
 
 # fonctions qui permettent le traitement de l'image
 # fonction qui transforme une image en une liste de pixels rgba
 def convert_image_pixel(file):
+    from PIL import Image
     image = Image.open(file)
     image = image.convert('RGBA')
     liste_pixels = list(image.getdata())
     return liste_pixels
 
+
 # fonction qui encode un message dans une image
 def traitement_image(file, texte):
+    from PIL import Image
     liste_binaire=[]
     im = Image.open(file)
     im = im.convert('RGBA')
@@ -60,8 +63,7 @@ def traitement_image(file, texte):
                 couleur_pixel[-k]+=1
             del(liste_nb_pixels[0])
         im.putpixel([x, y], tuple(couleur_pixel))
-    im.show()
-    im.save('pigeon_encode.png')
+    return im
 
 
 # fonction qui decode le nombre de pixels utilises dans l'encodage
@@ -129,49 +131,193 @@ window.geometry('1000x600+100+10')
 window.resizable(False, False)
 window.configure(bg='dark blue')
 
+
 def button_encryptage_click():
     label_titre.place_forget()
     label_desc.place_forget()
     button_decryptage.place_forget()
-    button_theme.place_forget()
     button_encryptage.place_forget()
+    label_titre_encryptage.place(x=335, y=40)
+    label_texte_encryptage.place(x=171, y=130)
+    label_texte_image_encryptage.place(x=50, y=220)
+    button_encryptage_encryptage.place(x=160, y=350)
+    button_retour.place(x=50, y=500)
+    button_retour.configure(text='Retour', width='10')
+
 
 def button_decryptage_click():
     label_titre.place_forget()
     label_desc.place_forget()
     button_decryptage.place_forget()
-    button_theme.place_forget()
     button_encryptage.place_forget()
 
-def button_theme_click():
-    label_titre.place_forget()
-    label_desc.place_forget()
-    button_decryptage.place_forget()
-    button_theme.place_forget()
-    button_encryptage.place_forget()
 
-label_titre = Label(window, text='Bienvenu dans EnigmaPic !', font=('Century Schoolbook L', 50, 'bold'),
+def imageUploader():
+    from PIL import Image, ImageTk
+    fileTypes = [("Image files", "*.png;*.jpg;*.jpeg")]
+    global path
+    path = filedialog.askopenfilename(filetypes=fileTypes)
+    img = Image.open(path)
+    size_img = img.size
+    img_ratio = round(size_img[1] / size_img[0], 1)
+    longueur = 350
+    largeur = int(350*img_ratio)
+    x = 600
+    y = 210
+    if largeur > 390:
+        largeur = 395
+        longueur = int(round(395/img_ratio))
+        x = 650
+        y = 190
+    elif largeur < 250:
+        y = 250
+    img = img.resize((longueur, largeur))
+    pic = ImageTk.PhotoImage(img)
+    label_image.configure(image=pic)
+    label_image.image = pic
+    label_image.place(x=x, y=y)
+    button_selectionner.place(x=350, y=500)
+
+
+def button_retour_click2():
+    label_texte_message_encryptage.place_forget()
+    message_encryptage.place_forget()
+    button_entrer.place_forget()
+    label_titre_encryptage.place(x=335, y=40)
+    label_texte_encryptage.place(x=171, y=130)
+    label_texte_image_encryptage.place(x=50, y=220)
+    button_encryptage_encryptage.place(x=160, y=350)
+    label_image.place(x=600, y=200)
+    button_selectionner.place(x=350, y=500)
+    button_retour.configure(command=button_retour_click1)
+
+
+def button_retour_click1():
+    label_titre.place(x=50, y=40)
+    label_desc.place(x=70, y=130)
+    button_encryptage.place(x=120, y=350)
+    button_decryptage.place(x=550, y=350)
+    label_titre_encryptage.place_forget()
+    label_texte_encryptage.place_forget()
+    label_texte_image_encryptage.place_forget()
+    button_encryptage_encryptage.place_forget()
+    button_retour.place_forget()
+    label_image.place_forget()
+    button_selectionner.place_forget()
+    label_image2.place_forget()
+    label_resultat.place_forget()
+    button_telecharger.place_forget()
+
+
+def button_selectionner_click():
+    label_texte_message_encryptage.place(x=50, y=220)
+    message_encryptage.place(x=100, y=300)
+    button_entrer.place(x=800, y=500)
+    label_texte_image_encryptage.place_forget()
+    button_encryptage_encryptage.place_forget()
+    label_image.place_forget()
+    button_selectionner.place_forget()
+    button_retour.configure(command=button_retour_click2)
+
+
+def button_entrer_click():
+    from PIL import ImageTk
+    global message
+    global path
+    global image
+    message = message_encryptage.get()
+    print(path)
+    image = traitement_image(path, message)
+    size_img = image.size
+    img_ratio = round(size_img[1] / size_img[0], 1)
+    longueur = 350
+    largeur = int(350 * img_ratio)
+    x = 600
+    y = 210
+    if largeur > 395:
+        largeur = 395
+        longueur = int(round(395 / img_ratio))
+        x = 650
+        y = 190
+    elif largeur < 250:
+        y = 250
+    im = image.resize((longueur, largeur))
+    pic2 = ImageTk.PhotoImage(im)
+    label_image2.configure(image=pic2)
+    label_image2.image = pic2
+    label_image2.place(x=x, y=y)
+    label_texte_message_encryptage.place_forget()
+    message_encryptage.place_forget()
+    button_entrer.place_forget()
+    button_retour.configure(text='Menu Principal', width='13', command=button_retour_click1)
+    label_resultat.place(x=50, y=220)
+    button_telecharger.place(x=190, y=350)
+
+
+def telecharger():
+    global image
+    fileTypes = [("Image files", "*.png;*.jpg;*.jpeg")]
+    path2 = filedialog.asksaveasfilename(filetypes=fileTypes)
+    image.save(path2)
+
+
+# page 1
+label_titre = Label(window, text='Bienvenue dans EnigmaPic !', font=('Century Schoolbook L', 50, 'bold'),
                     bg='dark blue', fg='white')
-label_titre.place(x=80, y=40)
+label_titre.place(x=50, y=40)
 
 label_desc = Label(window, text="Ici, vous pourrez encrypter des messages dans des images,\nafin d'envoyer ce que vous desirez a quelqu'un sans laisser aucune trace !",
                    font=('Century Schoolbook L', 20), bg='dark blue', fg='white')
 label_desc.place(x=70, y=130)
 
-
 button_encryptage = Button(window, text="Encryptage\nd'une image", font=('Century Schoolbook L', 25), width='18',
                         height='2', bg='grey', fg='white', command=button_encryptage_click)
-button_encryptage.place(x=120, y=270)
+button_encryptage.place(x=120, y=350)
 
 button_decryptage = Button(window, text="Decryptage\nd'une image", font=('Century Schoolbook L', 25), width='18',
                         height='2', bg='grey', fg='white', command=button_decryptage_click)
-button_decryptage.place(x=550, y=270)
-
-button_theme = Button(window, text="Encryptage 'Jeux\nOlympiques'", font=('Century Schoolbook L', 25), width='18',
-                      height='2', bg='grey', fg='white', command=button_theme_click)
-button_theme.place(x=325, y=410)
+button_decryptage.place(x=550, y=350)
 
 
+# page 2
+label_titre_encryptage = Label(window, text='Encryptage', font=('Century Schoolbook L', 50, 'bold'),
+                               bg='dark blue', fg='white')
+
+label_texte_encryptage = Label(window, text="Ici, vous pouvez dissimuler un message dans votre image.",
+                               font=('Century Schoolbook L', 20), bg='dark blue', fg='white')
+
+label_texte_image_encryptage = Label(window, text="Selectionnez d'abord l'image dans\nlaquelle sera encode le message :",
+                                     font=('Century Schoolbook L', 25, 'underline'), bg='dark blue', fg='white', justify = 'left')
+
+button_encryptage_encryptage = Button(window, text="Choisir un fichier", font=('Century Schoolbook L', 20), width='15',
+                                      height='1', bg='grey', fg='white', command=imageUploader)
+
+label_image = Label(window)
+
+button_retour = Button(window, text='Retour', font=('Century Schoolbook L', 20), width='10',
+                       height='1', bg='grey', fg='white', command=button_retour_click1)
+
+button_selectionner = Button(window, text='Selectionner', font=('Century Schoolbook L', 20), width='13',
+                        height='1', bg='green', fg='white', command=button_selectionner_click)
+
+
+# page 3
+label_texte_message_encryptage = Label(window, text="Entrez le message a encoder dans l'image :",
+                                       font=('Century Schoolbook L', 25, 'underline'), bg='dark blue', fg='white')
+
+message_encryptage = Entry(window, font=('Century Schoolbook L', 20), justify='left', fg= 'black',
+                           borderwidth='2', width=50)
+
+button_entrer = Button(window, text='Entrer', font=('Century Schoolbook L', 20), width='10',
+                        height='1', bg='green', fg='white', command=button_entrer_click)
+
+# page 4
+label_resultat = Label(window, text="Voici votre image encodee !",
+                       font=('Century Schoolbook L', 25, 'underline'), bg='dark blue', fg='white')
+
+button_telecharger = Button(window, text="Telecharger l'image", font=('Century Schoolbook L', 20), width='18',
+                            height='1', bg='grey', fg='white', command=telecharger)
+
+label_image2 = Label(window)
 
 window.mainloop()
-
