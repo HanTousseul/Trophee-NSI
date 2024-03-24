@@ -150,7 +150,12 @@ def button_decryptage_click():
     label_desc.place_forget()
     button_decryptage.place_forget()
     button_encryptage.place_forget()
-
+    label_titre_decryptage.place(x=335, y=40)
+    label_texte_decryptage.place(x=171 , y=130)
+    label_texte_image_decryptage.place(x=50, y=220)
+    button_decryptage_decryptage.place(x=160, y=350)
+    button_retour_decryptage.place(x=50, y=500 )
+    button_retour_decryptage.place(text='Retour', width='10')
 
 def imageUploader():
     from PIL import Image, ImageTk
@@ -177,6 +182,32 @@ def imageUploader():
     label_image.image = pic
     label_image.place(x=x, y=y)
     button_selectionner.place(x=350, y=500)
+
+def imageUploader_decryptage():
+    from PIL import Image, ImageTk
+    fileTypes = [("Image files", "*.png;*.jpg;*.jpeg")]
+    global path
+    path = filedialog.askopenfilename(filetypes=fileTypes)
+    img = Image.open(path)
+    size_img = img.size
+    img_ratio = round(size_img[1] / size_img[0], 1)
+    longueur = 350
+    largeur = int(350*img_ratio)
+    x = 600
+    y = 210
+    if largeur > 390:
+        largeur = 395
+        longueur = int(round(395/img_ratio))
+        x = 650
+        y = 190
+    elif largeur < 250:
+        y = 250
+    img = img.resize((longueur, largeur))
+    pic = ImageTk.PhotoImage(img)
+    label_image.configure(image=pic)
+    label_image.image = pic
+    label_image.place(x=x, y=y)
+    button_selectionner_decryptage.place(x=350, y=500)
 
 
 def button_retour_click2():
@@ -208,6 +239,29 @@ def button_retour_click1():
     label_resultat.place_forget()
     button_telecharger.place_forget()
 
+def retour_decryptage():
+    label_titre_decryptage.place_forget()
+    label_texte_decryptage.place_forget()
+    label_texte_image_decryptage.place_forget()
+    button_decryptage_decryptage.place_forget()
+    button_retour_decryptage.place_forget()
+    label_titre.place(x=50, y=40)
+    label_desc.place(x=70, y=130)
+    button_encryptage.place(x=120, y=350)
+    button_decryptage.place(x=550, y=350)
+
+
+def retour_menu_principal_decryptage():
+    label_titre.place(x=50, y=40)
+    label_desc.place(x=70, y=130)
+    button_encryptage.place(x=120, y=350)
+    button_decryptage.place(x=550, y=350)
+    label_texte_message_decryptage.place_forget()
+    label_titre_decryptage.place_forget()
+    label_texte_decryptage.place_forget()
+    button_retour_menu_principal_decryptage.place_forget()
+    label_resultat_final.place_forget()
+
 
 def button_selectionner_click():
     label_texte_message_encryptage.place(x=50, y=220)
@@ -218,6 +272,27 @@ def button_selectionner_click():
     label_image.place_forget()
     button_selectionner.place_forget()
     button_retour.configure(command=button_retour_click2)
+
+def button_selectionner_click_decryptage():
+    global path
+    global image
+    print(path)
+    label_texte_message_decryptage.place(x=50, y=220)
+    label_texte_image_decryptage.place_forget()
+    button_decryptage_decryptage.place_forget()
+    label_image.place_forget()
+    button_retour_decryptage.place_forget()
+    button_selectionner_decryptage.place_forget()
+    button_retour_menu_principal_decryptage.place(x=50, y=500)
+    message_final_encryp=decodage(path)
+    label_resultat_final.configure(text=message_final_encryp, font=('Century Schoolbook L', 40, 'bold'),
+                    bg='dark blue', fg='white')
+    label_resultat_final.place(x=50, y=300)
+    
+
+
+
+
 
 
 def button_entrer_click():
@@ -319,5 +394,38 @@ button_telecharger = Button(window, text="Telecharger l'image", font=('Century S
                             height='1', bg='grey', fg='white', command=telecharger)
 
 label_image2 = Label(window)
+
+
+#page 5
+label_titre_decryptage = Label(window, text='Decryptage', font=('Century Schoolbook L', 50, 'bold'),
+                               bg='dark blue', fg='white')
+
+label_texte_decryptage = Label(window, text="Ici, vous pouvez lire le message caché de votre image.",
+                               font=('Century Schoolbook L', 20), bg='dark blue', fg='white')
+
+label_texte_image_decryptage = Label(window, text="Selectionnez d'abord l'image que \nvous voulez decrytper :",
+                                     font=('Century Schoolbook L', 25, 'underline'), bg='dark blue', fg='white', justify = 'left')
+
+button_decryptage_decryptage = Button(window, text="Choisir un fichier", font=('Century Schoolbook L', 20), width='15',
+                                      height='1', bg='grey', fg='white', command=imageUploader_decryptage)
+
+button_retour_decryptage = Button(window, text='Retour', font=('Century Schoolbook L', 20), width='10',
+                       height='1', bg='grey', fg='white', command=retour_decryptage)
+
+
+button_selectionner_decryptage = Button(window, text='Selectionner', font=('Century Schoolbook L', 20), width='13',
+                        height='1', bg='green', fg='white', command=button_selectionner_click_decryptage)
+
+label_image= Label(window)
+
+#page 6
+label_texte_message_decryptage= Label(window, text="Voila votre message :",
+                                       font=('Century Schoolbook L', 25, 'underline'), bg='dark blue', fg='white')
+
+
+button_retour_menu_principal_decryptage = Button(window, text='Menu Principal', font=('Century Schoolbook L', 20), 
+                                                 width='15', height='1', bg='grey', fg='white', 
+                                                 command=retour_menu_principal_decryptage)
+label_resultat_final=Label(window)
 
 window.mainloop()
