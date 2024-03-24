@@ -353,7 +353,7 @@ button_encryptage = Button(window, text="Encryptage\nd'une image", font=('Centur
                         height='2', bg='grey', fg='white', command=button_encryptage_click)
 button_encryptage.place(x=120, y=350)
 
-button_decryptage = Button(window, text="Decryptage\nd'une image", font=('Century Schoolbook L', 25), width='18',
+button_decryptage = Button(window, text="Décryptage\nd'une image", font=('Century Schoolbook L', 25), width='18',
                         height='2', bg='grey', fg='white', command=button_decryptage_click)
 button_decryptage.place(x=550, y=350)
 
