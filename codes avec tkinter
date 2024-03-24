@@ -15,53 +15,55 @@ def convert_image_pixel(file):
 # fonction qui encode un message dans une image
 def traitement_image(file, texte):
     from PIL import Image
-    liste_binaire=[]
+    liste_binaire = []
     im = Image.open(file)
     im = im.convert('RGBA')
     w_img = (im.size)[0]
     # la variable binaire est un string de binaire correspondant au texte donne en argument
-    binaire=''.join(format(ord(i), '08b') for i in texte)
+    binaire = ''.join(format(ord(i), '08b') for i in texte)
     for i in range(len(binaire)):
         # liste_binaire est une liste contenant des strings. chaque string est un nombre en binaire
         liste_binaire.append(int(binaire[i]))
-    nb_pixels = len(liste_binaire)//4
+    nb_pixels = len(liste_binaire) // 4
     for k in range(nb_pixels):
         # on place les bits en partant du pixel en haut a droite. on incremente de un a un vers la gauche jusqua toucher
         # la limite droite, on revient ensuite a gauche en descendant d'une ligne. donc l'abscisse est de k modulo la
         # largeur de l'image, et l'ordonnee est la division entiere de k par la largeur de l'image.
-        coordinate = k % w_img, k//w_img
+        coordinate = k % w_img, k // w_img
         tpl = im.getpixel(coordinate)
         couleur = list(tpl)
-        couleur_bin = [int((bin(couleur[0]))[2:10]), int((bin(couleur[1]))[2:10]), int((bin(couleur[2]))[2:10]),int((bin(couleur[3]))[2:10])] #couleur_bin est une liste. les valeurs prises sont 'couleur' en binaire, string, auquel on enleve le '0b' du debut(avec un slice), et qu'on reconvertit en string
+        couleur_bin = [int((bin(couleur[0]))[2:10]), int((bin(couleur[1]))[2:10]), int((bin(couleur[2]))[2:10]),
+                       int((bin(couleur[3]))[
+                           2:10])]  # couleur_bin est une liste. les valeurs prises sont 'couleur' en binaire, string, auquel on enleve le '0b' du debut(avec un slice), et qu'on reconvertit en string
         for i in range(4):
-            if liste_binaire[4*k+i] != couleur_bin[i] % 2:
-                couleur_bin[i] = str((couleur_bin[i]//10)*10+liste_binaire[4*k+i])
+            if liste_binaire[4 * k + i] != couleur_bin[i] % 2:
+                couleur_bin[i] = str((couleur_bin[i] // 10) * 10 + liste_binaire[4 * k + i])
                 couleur_bin[i] = int(couleur_bin[i], 2)
             else:
                 couleur_bin[i] = int(str(couleur_bin[i]), 2)
         couleur_bin = tuple(couleur_bin)
-        im.putpixel(((k % w_img), (k//w_img)), couleur_bin)
+        im.putpixel(((k % w_img), (k // w_img)), couleur_bin)
     # la varibale liste_nb_pixels contient la valeur en binaire sur 32 bits du nombre de pixels a decoder
     liste_nb_pixels = list(bin(nb_pixels))
     liste_nb_pixels.pop(0)
     liste_nb_pixels.pop(0)
     liste_nb_pixels.reverse()
     for i in range(len(liste_nb_pixels)):
-        liste_nb_pixels[i]=int(liste_nb_pixels[i])
-    while len(liste_nb_pixels)<32:
+        liste_nb_pixels[i] = int(liste_nb_pixels[i])
+    while len(liste_nb_pixels) < 32:
         liste_nb_pixels.append(0)
     # je laisse la liste a l'envers car je vais prendre les pixels en partant du bit de poids faible
     for i in range(8):
         # j'utilise ces operations sur x et y pour que le nombre de pixel stocke soit ecrit meme si l'image fait moins de 8 pixels de large
         x = -1 - i % w_img
-        y = -1-i//w_img
-        couleur_pixel=list(im.getpixel((x, y)))
+        y = -1 - i // w_img
+        couleur_pixel = list(im.getpixel((x, y)))
         for k in range(1, 5):
-            if couleur_pixel[-k]%2==1 and liste_nb_pixels[0]%2==0:
-                couleur_pixel[-k]-=1
-            elif couleur_pixel[-k]%2==0 and liste_nb_pixels[0]%2==1:
-                couleur_pixel[-k]+=1
-            del(liste_nb_pixels[0])
+            if couleur_pixel[-k] % 2 == 1 and liste_nb_pixels[0] % 2 == 0:
+                couleur_pixel[-k] -= 1
+            elif couleur_pixel[-k] % 2 == 0 and liste_nb_pixels[0] % 2 == 1:
+                couleur_pixel[-k] += 1
+            del (liste_nb_pixels[0])
         im.putpixel([x, y], tuple(couleur_pixel))
     return im
 
@@ -142,7 +144,7 @@ def button_encryptage_click():
     label_texte_image_encryptage.place(x=50, y=220)
     button_encryptage_encryptage.place(x=160, y=350)
     button_retour.place(x=50, y=500)
-    button_retour.configure(text='Retour', width='10')
+    button_retour.configure(text='Retour', width='10', command=button_retour_click1)
 
 
 def button_decryptage_click():
@@ -151,11 +153,12 @@ def button_decryptage_click():
     button_decryptage.place_forget()
     button_encryptage.place_forget()
     label_titre_decryptage.place(x=335, y=40)
-    label_texte_decryptage.place(x=171 , y=130)
+    label_texte_decryptage.place(x=171, y=130)
     label_texte_image_decryptage.place(x=50, y=220)
     button_decryptage_decryptage.place(x=160, y=350)
-    button_retour_decryptage.place(x=50, y=500 )
-    button_retour_decryptage.place(text='Retour', width='10')
+    button_retour.place(x=50, y=500)
+    button_retour.configure(text='Retour', width='10', command=retour_decryptage)
+
 
 def imageUploader():
     from PIL import Image, ImageTk
@@ -166,12 +169,12 @@ def imageUploader():
     size_img = img.size
     img_ratio = round(size_img[1] / size_img[0], 1)
     longueur = 350
-    largeur = int(350*img_ratio)
+    largeur = int(350 * img_ratio)
     x = 600
     y = 210
     if largeur > 390:
         largeur = 395
-        longueur = int(round(395/img_ratio))
+        longueur = int(round(395 / img_ratio))
         x = 650
         y = 190
     elif largeur < 250:
@@ -183,6 +186,7 @@ def imageUploader():
     label_image.place(x=x, y=y)
     button_selectionner.place(x=350, y=500)
 
+
 def imageUploader_decryptage():
     from PIL import Image, ImageTk
     fileTypes = [("Image files", "*.png;*.jpg;*.jpeg")]
@@ -192,12 +196,12 @@ def imageUploader_decryptage():
     size_img = img.size
     img_ratio = round(size_img[1] / size_img[0], 1)
     longueur = 350
-    largeur = int(350*img_ratio)
+    largeur = int(350 * img_ratio)
     x = 600
     y = 210
     if largeur > 390:
         largeur = 395
-        longueur = int(round(395/img_ratio))
+        longueur = int(round(395 / img_ratio))
         x = 650
         y = 190
     elif largeur < 250:
@@ -239,19 +243,19 @@ def button_retour_click1():
     label_resultat.place_forget()
     button_telecharger.place_forget()
 
+
 def retour_decryptage():
     label_titre_decryptage.place_forget()
     label_texte_decryptage.place_forget()
     label_texte_image_decryptage.place_forget()
     button_decryptage_decryptage.place_forget()
-    button_retour_decryptage.place_forget()
     label_image.place_forget()
     button_selectionner_decryptage.place_forget()
+    button_retour.place_forget()
     label_titre.place(x=50, y=40)
     label_desc.place(x=70, y=130)
     button_encryptage.place(x=120, y=350)
     button_decryptage.place(x=550, y=350)
-
 
 
 def retour_menu_principal_decryptage():
@@ -262,10 +266,11 @@ def retour_menu_principal_decryptage():
     label_texte_message_decryptage.place_forget()
     label_titre_decryptage.place_forget()
     label_texte_decryptage.place_forget()
-    button_retour_menu_principal_decryptage.place_forget()
     label_resultat_final.place_forget()
     label_image.place_forget()
-
+    button_retour.place_forget()
+    label_erreur.place_forget()
+    button_copier.place_forget()
 
 def button_selectionner_click():
     label_texte_message_encryptage.place(x=50, y=220)
@@ -276,27 +281,90 @@ def button_selectionner_click():
     label_image.place_forget()
     button_selectionner.place_forget()
     button_retour.configure(command=button_retour_click2)
+    message_encryptage.delete(0, END)
+
 
 def button_selectionner_click_decryptage():
     global path
     global image
-    print(path)
-    label_texte_message_decryptage.place(x=50, y=220)
+    button_retour.configure(text='Menu Principal', width='13', command=retour_menu_principal_decryptage)
     label_texte_image_decryptage.place_forget()
     button_decryptage_decryptage.place_forget()
     label_image.place_forget()
-    button_retour_decryptage.place_forget()
     button_selectionner_decryptage.place_forget()
-    button_retour_menu_principal_decryptage.place(x=50, y=500)
-    message_final_encryp=decodage(path)
-    label_resultat_final.configure(text=message_final_encryp, font=('Century Schoolbook L', 40, 'bold'),
-                    bg='dark blue', fg='white')
-    label_resultat_final.place(x=50, y=300)
-    
-
-
-
-
+    try :
+        message_final_encryp = decodage(path)
+    except:
+        label_erreur.place(x=50, y=280)
+    else:
+        global message_copier
+        message_copier = message_final_encryp
+        button_copier.place(x=700, y=500)
+        label_texte_message_decryptage.place(x=50, y=200)
+        if len(message_final_encryp) < 34:
+            label_resultat_final.configure(text="'" + message_final_encryp + "'", font=('Century Schoolbook L', 40, 'bold'),
+                                           bg='dark blue', fg='white')
+        elif len(message_final_encryp)<100:
+            message_liste = list(message_final_encryp)
+            message2 = []
+            while len(message_liste) > 0:
+                message_liste_petit = message_liste[0:34]
+                message = ''.join(message_liste_petit)
+                message2.append(message)
+                message2.append('\n')
+                for i in range(min(34, len(message_liste))):
+                    del message_liste[0]
+            message3 = message2[0:-1]
+            message4 = ''.join(message3)
+            label_resultat_final.configure(text="'" + message4 + "'",
+                                           font=('Century Schoolbook L', 38, 'bold'),
+                                           bg='dark blue', fg='white')
+        elif len(message_final_encryp)<434 :
+            message_liste = list(message_final_encryp)
+            message2 = []
+            while len(message_liste) > 0:
+                message_liste_petit = message_liste[0:62]
+                message = ''.join(message_liste_petit)
+                message2.append(message)
+                message2.append('\n')
+                for i in range(min(62, len(message_liste))):
+                    del message_liste[0]
+            message3 = message2[0:-1]
+            message4 = ''.join(message3)
+            label_resultat_final.configure(text="'" + message4 + "'",
+                                           font=('Century Schoolbook L', 18, 'bold'),
+                                           bg='dark blue', fg='white')
+        elif len(message_final_encryp)<888:
+            message_liste = list(message_final_encryp)
+            message2 = []
+            while len(message_liste) > 0:
+                message_liste_petit = message_liste[0:90]
+                message = ''.join(message_liste_petit)
+                message2.append(message)
+                message2.append('\n')
+                for i in range(min(90, len(message_liste))):
+                    del message_liste[0]
+            message3 = message2[0:-1]
+            message4 = ''.join(message3)
+            label_resultat_final.configure(text="'" + message4 + "'",
+                                           font=('Century Schoolbook L', 13, 'bold'),
+                                           bg='dark blue', fg='white')
+        else :
+            message_liste = list(message_final_encryp)
+            message2 = []
+            while len(message_liste) > 0:
+                message_liste_petit = message_liste[0:134]
+                message = ''.join(message_liste_petit)
+                message2.append(message)
+                message2.append('\n')
+                for i in range(min(134, len(message_liste))):
+                    del message_liste[0]
+            message3 = message2[0:-1]
+            message4 = ''.join(message3)
+            label_resultat_final.configure(text="'" + message4 + "'",
+                                           font=('Century Schoolbook L', 8, 'bold'),
+                                           bg='dark blue', fg='white')
+        label_resultat_final.place(x=15, y=260)
 
 
 def button_entrer_click():
@@ -305,7 +373,6 @@ def button_entrer_click():
     global path
     global image
     message = message_encryptage.get()
-    print(path)
     image = traitement_image(path, message)
     size_img = image.size
     img_ratio = round(size_img[1] / size_img[0], 1)
@@ -340,23 +407,30 @@ def telecharger():
     image.save(path2)
 
 
+def copier():
+    global message_copier
+    window.clipboard_clear()
+    window.clipboard_append(message_copier)
+    window.update()
+
+
 # page 1
 label_titre = Label(window, text='Bienvenue dans EnigmaPic !', font=('Century Schoolbook L', 50, 'bold'),
                     bg='dark blue', fg='white')
 label_titre.place(x=50, y=40)
 
-label_desc = Label(window, text="Ici, vous pourrez encrypter des messages dans des images,\nafin d'envoyer ce que vous désirez à quelqu'un sans laisser aucune trace !",
+label_desc = Label(window,
+                   text="Ici, vous pourrez encrypter des messages dans des images,\nafin d'envoyer ce que vous désirez à quelqu'un sans laisser aucune trace !",
                    font=('Century Schoolbook L', 20), bg='dark blue', fg='white')
 label_desc.place(x=70, y=130)
 
 button_encryptage = Button(window, text="Encryptage\nd'une image", font=('Century Schoolbook L', 25), width='18',
-                        height='2', bg='grey', fg='white', command=button_encryptage_click)
+                           height='2', bg='grey', fg='white', command=button_encryptage_click)
 button_encryptage.place(x=120, y=350)
 
 button_decryptage = Button(window, text="Décryptage\nd'une image", font=('Century Schoolbook L', 25), width='18',
-                        height='2', bg='grey', fg='white', command=button_decryptage_click)
+                           height='2', bg='grey', fg='white', command=button_decryptage_click)
 button_decryptage.place(x=550, y=350)
-
 
 # page 2
 label_titre_encryptage = Label(window, text='Encryptage', font=('Century Schoolbook L', 50, 'bold'),
@@ -365,8 +439,10 @@ label_titre_encryptage = Label(window, text='Encryptage', font=('Century Schoolb
 label_texte_encryptage = Label(window, text="Ici, vous pouvez dissimuler un message dans votre image.",
                                font=('Century Schoolbook L', 20), bg='dark blue', fg='white')
 
-label_texte_image_encryptage = Label(window, text="Sélectionnez d'abord l'image dans\nlaquelle sera encodé le message :",
-                                     font=('Century Schoolbook L', 25, 'underline'), bg='dark blue', fg='white', justify = 'left')
+label_texte_image_encryptage = Label(window,
+                                     text="Sélectionnez d'abord l'image dans\nlaquelle sera encodé le message :",
+                                     font=('Century Schoolbook L', 25, 'underline'), bg='dark blue', fg='white',
+                                     justify='left')
 
 button_encryptage_encryptage = Button(window, text="Choisir un fichier", font=('Century Schoolbook L', 20), width='15',
                                       height='1', bg='grey', fg='white', command=imageUploader)
@@ -377,18 +453,17 @@ button_retour = Button(window, text='Retour', font=('Century Schoolbook L', 20),
                        height='1', bg='grey', fg='white', command=button_retour_click1)
 
 button_selectionner = Button(window, text='Sélectionner', font=('Century Schoolbook L', 20), width='13',
-                        height='1', bg='green', fg='white', command=button_selectionner_click)
-
+                             height='1', bg='green', fg='white', command=button_selectionner_click)
 
 # page 3
 label_texte_message_encryptage = Label(window, text="Entrez le message à encoder dans l'image :",
                                        font=('Century Schoolbook L', 25, 'underline'), bg='dark blue', fg='white')
 
-message_encryptage = Entry(window, font=('Century Schoolbook L', 20), justify='left', fg= 'black',
+message_encryptage = Entry(window, font=('Century Schoolbook L', 20), justify='left', fg='black',
                            borderwidth='2', width=50)
 
 button_entrer = Button(window, text='Entrer', font=('Century Schoolbook L', 20), width='10',
-                        height='1', bg='green', fg='white', command=button_entrer_click)
+                       height='1', bg='green', fg='white', command=button_entrer_click)
 
 # page 4
 label_resultat = Label(window, text="Voici votre image encodée !",
@@ -399,37 +474,37 @@ button_telecharger = Button(window, text="Télécharger l'image", font=('Century
 
 label_image2 = Label(window)
 
-
-#page 5
+# page 5
 label_titre_decryptage = Label(window, text='Décryptage', font=('Century Schoolbook L', 50, 'bold'),
                                bg='dark blue', fg='white')
 
 label_texte_decryptage = Label(window, text="Ici, vous pouvez lire le message caché de votre image.",
                                font=('Century Schoolbook L', 20), bg='dark blue', fg='white')
 
-label_texte_image_decryptage = Label(window, text="Sélectionnez d'abord l'image que \nvous voulez décrytper :",
-                                     font=('Century Schoolbook L', 25, 'underline'), bg='dark blue', fg='white', justify = 'left')
+label_texte_image_decryptage = Label(window, text="Sélectionnez l'image que\nvous voulez décrytper :",
+                                     font=('Century Schoolbook L', 25, 'underline'), bg='dark blue', fg='white',
+                                     justify='left')
 
 button_decryptage_decryptage = Button(window, text="Choisir un fichier", font=('Century Schoolbook L', 20), width='15',
                                       height='1', bg='grey', fg='white', command=imageUploader_decryptage)
 
-button_retour_decryptage = Button(window, text='Retour', font=('Century Schoolbook L', 20), width='10',
-                       height='1', bg='grey', fg='white', command=retour_decryptage)
-
 
 button_selectionner_decryptage = Button(window, text='Sélectionner', font=('Century Schoolbook L', 20), width='13',
-                        height='1', bg='green', fg='white', command=button_selectionner_click_decryptage)
+                                        height='1', bg='green', fg='white',
+                                        command=button_selectionner_click_decryptage)
 
-label_image= Label(window)
+label_image = Label(window)
 
-#page 6
-label_texte_message_decryptage= Label(window, text="Voilà votre message!:",
+# page 6
+label_texte_message_decryptage = Label(window, text="Le message encodé est :",
                                        font=('Century Schoolbook L', 25, 'underline'), bg='dark blue', fg='white')
 
+label_resultat_final = Label(window)
 
-button_retour_menu_principal_decryptage = Button(window, text='Menu Principal', font=('Century Schoolbook L', 20), 
-                                                 width='15', height='1', bg='grey', fg='white', 
-                                                 command=retour_menu_principal_decryptage)
-label_resultat_final=Label(window)
+label_erreur = Label(window, text="Il n'y a pas de message encodé dans cette photo.\nVeuillez en sélectionner une autre.",
+                     font=('Century Schoolbook L', 30, 'bold'), bg='dark blue', fg='red')
+
+button_copier = Button(window, text='Copier le message', font=('Century Schoolbook L', 20), width='15',
+                        height='1', bg='grey', fg='white', command=copier)
 
 window.mainloop()
