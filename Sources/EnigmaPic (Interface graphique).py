@@ -262,6 +262,7 @@ def button_retour_click2():
     label_image.place(x=600, y=200)
     button_selectionner.place(x=350, y=500)
     button_retour.configure(command=button_retour_click1)
+    label_erreur2.place_forget()
 
 
 def button_retour_click1():
@@ -355,7 +356,7 @@ def button_selectionner_click_decryptage():
             message3 = message2[0:-1]
             message4 = ''.join(message3)
             label_resultat_final.configure(text="'" + message4 + "'",
-                                           font=('Century Schoolbook L', 38, 'bold'),
+                                           font=('Century Schoolbook L', 40, 'bold'),
                                            bg='dark blue', fg='white')
         elif len(message_final_encryp)<434 :
             message_liste = list(message_final_encryp)
@@ -370,7 +371,7 @@ def button_selectionner_click_decryptage():
             message3 = message2[0:-1]
             message4 = ''.join(message3)
             label_resultat_final.configure(text="'" + message4 + "'",
-                                           font=('Century Schoolbook L', 18, 'bold'),
+                                           font=('Century Schoolbook L', 20, 'bold'),
                                            bg='dark blue', fg='white')
         elif len(message_final_encryp)<888:
             message_liste = list(message_final_encryp)
@@ -385,7 +386,7 @@ def button_selectionner_click_decryptage():
             message3 = message2[0:-1]
             message4 = ''.join(message3)
             label_resultat_final.configure(text="'" + message4 + "'",
-                                           font=('Century Schoolbook L', 13, 'bold'),
+                                           font=('Century Schoolbook L', 15, 'bold'),
                                            bg='dark blue', fg='white')
         else :
             message_liste = list(message_final_encryp)
@@ -400,7 +401,7 @@ def button_selectionner_click_decryptage():
             message3 = message2[0:-1]
             message4 = ''.join(message3)
             label_resultat_final.configure(text="'" + message4 + "'",
-                                           font=('Century Schoolbook L', 8, 'bold'),
+                                           font=('Century Schoolbook L', 10, 'bold'),
                                            bg='dark blue', fg='white')
         label_resultat_final.place(x=15, y=260)
 
@@ -440,13 +441,14 @@ def button_entrer_click():
         button_retour.configure(text='Menu Principal', width='13', command=button_retour_click1)
         label_resultat.place(x=50, y=220)
         button_telecharger.place(x=190, y=350)
+        label_erreur2.place_forget()
 
 
 def telecharger():
     global image
     global name
     fileTypes = [("Image files", "*.png")]
-    path2 = filedialog.asksaveasfilename(filetypes=fileTypes, defaultextension=".png", initialfile='image encodée.png')
+    path2 = filedialog.asksaveasfilename(filetypes=fileTypes, defaultextension=".png", initialfile='image encodee.png')
     image.save(path2)
 
 
