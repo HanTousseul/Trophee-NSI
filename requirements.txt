@@ -1,5 +1,6 @@
 Les pré-requis de lancement:
 - Python version 3.12 ou plus
 - La librairie Tkinter (si elle n'est pas déjà installée, pour cela utilisez la commande 'pip install tk'si vous utilisez Pip, ou 'conda install tk' si vous utilisez Conda)
+- La librairie PIL (utiliser la commande 'pip install Pillow' si vous utilisez pip ou conda install -c anaconda Pillow si vous utilisez Conda
 - Durant nos tests, L'interface Tkinter ne marchait pas sur macOS (elle cessait  de fonctionner quand on essayait de 
 sélectionner une image de notre ordinateur), il est donc préférable d'utiliser Windows
