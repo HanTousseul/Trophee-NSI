@@ -19,75 +19,80 @@ def verification_coords(coordx, coordy, w_img, h_img, coord_occ):
             if coordy>=h_img:
                 coordy=0
     return coordx, coordy
+
+
 # fonction qui encode un message dans une image
-
-
-def traitement_image(file, texte):
+def encodage(file, texte):
+    '''
+    la fonction encodage prend en argument un string nommé file et un string nommé texte, elle va ensuite encoder le texte dans l'image de type png ou jpg dont le chemin est donné dans file. Si l'image est dans le même dossier que le code, le nom de l'image suffira
+    ______________________________________
+    file: str
+    texte: str
+    '''
     im = Image.open(file)
     im = im.convert('RGBA')
     w_img = (im.size)[0]
     h_img = (im.size)[1]
+    # verifie que le message peut etre encrypter dans la photo
+    if len(texte)>((w_img*h_img)//3):
+        return False
     # la variable binaire est un string de binaire correspondant au texte donne en argument
-    binaire=''.join(format(ord(i), '08b') for i in texte)
-    liste_binaire=[int(i) for i in binaire]
-        # liste_binaire est une liste contenant des entier. chaque entier est un bit en binaire
-    nb_lettres = len(liste_binaire)//8
-    coord_occ=[]
-    nb_pixels_morts=(w_img*h_img)%3
-    if nb_pixels_morts>0:
-        coord_occ.append((w_img-1,h_img-1))
-        if nb_pixels_morts>1:
-            coord_occ.append((w_img-2,h_img-1))
-    coordx= 0
-    coordy= 0
-    for k in range(nb_lettres):
-        # on place les bits en partant du pixel en haut a gauche. on incremente de un a un vers la droite jusqua toucher
-        # la limite droite, on revient ensuite a gauche en descendant d'une ligne. donc l'abscisse est de k modulo la
-        # largeur de l'image, et l'ordonnee est la division entiere de k par la largeur de l'image.
-        for z in range(3):
-            if z!=0:
-                coordx+=1
-            if coordx>=w_img:
-                coordx=0
-                coordy+=1
-                if coordy>=h_img:
-                    coordy=0
-            tpl = im.getpixel((coordx,coordy))
-            couleur = list(tpl)
-            couleur_bin = [int((bin(couleur[0]))[2:10]), int((bin(couleur[1]))[2:10]), int((bin(couleur[2]))[2:10]),int((bin(couleur[3]))[2:10])] #couleur_bin est une liste. les valeurs prises sont 'couleur' en binaire, string, auquel on enleve le '0b' du debut(avec un slice), et qu'on reconvertit en string
-            if z==2:
-                saut=randint(1,15)
-                sautbin='{:04b}'.format(saut)
-                listesautbin=[int(m) for m in sautbin]
-                if k==nb_lettres-1:
-                    saut=0
-                    listesautbin=[0 for _ in range(4)]
-                for i in range(4):
-                    if listesautbin[i] != couleur_bin[i] % 2:
-                        couleur_bin[i] = str((couleur_bin[i]//10)*10+listesautbin[i])
-                        couleur_bin[i] = int(couleur_bin[i], 2)
-                    else:
-                        couleur_bin[i]=int(str(couleur_bin[i]), 2)
-            else:
-                for i in range(4):
-                    if liste_binaire[4*(2*k+z)+i] != couleur_bin[i] % 2:
-                        couleur_bin[i] = str((couleur_bin[i]//10)*10+liste_binaire[4*(2*k+z)+i])
-                        couleur_bin[i] = int(couleur_bin[i], 2)
-                    else:
-                        couleur_bin[i] = int(str(couleur_bin[i]), 2)
-            coord_occ.append((coordx,coordy))
-            couleur_bin = tuple(couleur_bin)
-            im.putpixel((coordx, coordy), couleur_bin)
-            if z==2 and saut!=0:
-                coordx+=(saut-1)*3+1
-                old_coordy=coordy
-                coordx,coordy= verification_coords(coordx, coordy, w_img, h_img, coord_occ)
-                if coordy<old_coordy:
-                    coordx,coordy=0,0
-                    coordx,coordy=verification_coords(coordx, coordy, w_img, h_img, coord_occ)
-    n_file=str(file)
-    return im
-
+    else:
+        binaire=''.join(format(ord(i), '08b') for i in texte)
+        liste_binaire=[int(i) for i in binaire]
+            # liste_binaire est une liste contenant des entier. chaque entier est un bit en binaire
+        nb_lettres = len(liste_binaire)//8
+        coord_occ=[] #cette liste va contenir les coordonnées de tout les pixels qui sont deja occupés (c'est a dire que le code ne doit pas modifier)
+        nb_pixels_morts=(w_img*h_img)%3 #calculer le nombre de pixels qui ne font pas partie d'un trio pour les exclure
+        if nb_pixels_morts>0:
+            coord_occ.append((w_img-1,h_img-1))
+            if nb_pixels_morts>1:
+                coord_occ.append((w_img-2,h_img-1))
+        coordx= 0 #initialisation des coordonnées
+        coordy= 0
+        for k in range(nb_lettres):
+            for z in range(3): #forme les groupe de trios: 2 pixels encodent la lettre et le 3eme le saut
+                if z!=0: #increment les coordonnées
+                    coordx+=1
+                if coordx>=w_img: #verification que les coordonnées sont dans l'image
+                    coordx=0
+                    coordy+=1
+                    if coordy>=h_img:
+                        coordy=0
+                tpl = im.getpixel((coordx,coordy))
+                couleur = list(tpl)
+                couleur_bin = [int(dec_a_bin(couleur[0])), int(dec_a_bin(couleur[1])), int(dec_a_bin(couleur[2])),int(dec_a_bin(couleur[3]))] #couleur_bin est une liste. les valeurs prises sont 'couleur' en binaire, string, et qu'on reconvertit en entier
+                if z==2: #encode le saut
+                    saut=randint(1,15)
+                    sautbin='{:04b}'.format(saut)
+                    listesautbin=[int(m) for m in sautbin]
+                    if k==nb_lettres-1: #on est arrivés a la derniere lettre, on encode alors un saut de 0 pour que le programme de decodage sache quand s'arreter
+                        saut=0
+                        listesautbin=[0 for _ in range(4)]
+                    for i in range(4):
+                        if listesautbin[i] != couleur_bin[i] % 2:
+                            couleur_bin[i] = str((couleur_bin[i]//10)*10+listesautbin[i])
+                            couleur_bin[i] = int(couleur_bin[i], 2)
+                        else:
+                            couleur_bin[i]=int(str(couleur_bin[i]), 2)
+                else: #encode la lettre
+                    for i in range(4):
+                        if liste_binaire[4*(2*k+z)+i] != couleur_bin[i] % 2:
+                            couleur_bin[i] = str((couleur_bin[i]//10)*10+liste_binaire[4*(2*k+z)+i])
+                            couleur_bin[i] = int(couleur_bin[i], 2)
+                        else:
+                            couleur_bin[i] = int(str(couleur_bin[i]), 2)
+                coord_occ.append((coordx,coordy)) #indique qu'une coordonnées est désormais occupée
+                couleur_bin = tuple(couleur_bin)
+                im.putpixel((coordx, coordy), couleur_bin) #modifie le pixel
+                if z==2 and saut!=0: #prend en compte le saut pour placer le prochain trio
+                    coordx+=(saut-1)*3+1
+                    old_coordy=coordy
+                    coordx,coordy= verification_coords(coordx, coordy, w_img, h_img, coord_occ)
+                    if coordy<old_coordy:
+                        coordx,coordy=0,0
+                        coordx,coordy=verification_coords(coordx, coordy, w_img, h_img, coord_occ)
+        return im
 
 # fontion qui transforme un string contenant un nombre binaire en un entier decimal
 def bin_a_dec(binaire):
@@ -95,12 +100,27 @@ def bin_a_dec(binaire):
     Lbinaire.reverse()
     decimal=0
     for i in range(len(Lbinaire)):
-        decimal+=int(Lbinaire[i])*2**i
+        decimal += int(Lbinaire[i])*2**i
     return decimal
+
+#fonction qui transforme un entier décimal entre 0 et 255 en nombre binaire composé de 8 bits
+def dec_a_bin(decimal):
+    binaire=''
+    while decimal>0:
+        binaire=str(decimal%2)+binaire
+        decimal=decimal//2
+    while len(binaire)<8:
+        binaire='0'+binaire
+    return binaire
 
 
 # fonction qui decode le message cache dans l'image
 def decodage(image):
+    '''
+    La fonction décodage prend en argument un le chemin d'une image (encodée en utilisant la fonction 'encodage', elle est donc de format .png) et renvoie le message encodé dedans. De même, si l'image est dans le même dossier que le code, son nom suffira, dans le cas contraire, merci de fournir son chemin absolu entre guillemets
+    __________________________________
+    image: str
+    '''
     im = Image.open(image)
     im = im.convert('RGBA')
     w_img = (im.size)[0]
@@ -201,6 +221,8 @@ def imageUploader():
     from PIL import Image, ImageTk
     fileTypes = [("Image files", "*.png;*.jpg;*.jpeg")]
     global path
+    global x
+    global y
     path = filedialog.askopenfilename(filetypes=fileTypes)
     img = Image.open(path)
     size_img = img.size
@@ -252,6 +274,8 @@ def imageUploader_decryptage():
 
 
 def button_retour_click2():
+    global x
+    global y
     label_texte_message_encryptage.place_forget()
     message_encryptage.place_forget()
     button_entrer.place_forget()
@@ -259,7 +283,7 @@ def button_retour_click2():
     label_texte_encryptage.place(x=171, y=130)
     label_texte_image_encryptage.place(x=50, y=220)
     button_encryptage_encryptage.place(x=160, y=350)
-    label_image.place(x=600, y=200)
+    label_image.place(x=x, y=y)
     button_selectionner.place(x=350, y=500)
     button_retour.configure(command=button_retour_click1)
     label_erreur2.place_forget()
@@ -331,9 +355,8 @@ def button_selectionner_click_decryptage():
     button_decryptage_decryptage.place_forget()
     label_image.place_forget()
     button_selectionner_decryptage.place_forget()
-    try :
-        message_final_encryp = decodage(path)
-    except:
+    message_final_encryp = decodage(path)
+    if message_final_encryp == False:
         label_erreur.place(x=50, y=280)
     else:
         global message_copier
@@ -413,7 +436,7 @@ def button_entrer_click():
     global image
     message = message_encryptage.get()
     try:
-        image = traitement_image(path, message)
+        image = encodage(path, message)
         size_img = image.size
     except:
         label_erreur2.place(x=30, y=370)
