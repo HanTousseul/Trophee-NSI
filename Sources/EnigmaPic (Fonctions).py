@@ -17,7 +17,13 @@ def verification_coords(coordx, coordy, w_img, h_img, coord_occ):
                 coordy=0
     return coordx, coordy
 # fonction qui encode un message dans une image
-def traitement_image(file, texte):
+def encodage(file, texte):
+    '''
+    la fonction encodage prend en argument un string nommé file et un string nommé texte, elle va ensuite encoder le texte dans l'image de type png ou jpg dont le chemin est donné dans file. Si l'image est dans le même dossier que le code, le nom de l'image suffira
+    ______________________________________
+    file: str
+    texte: str
+    '''
     im = Image.open(file)
     im = im.convert('RGBA')
     w_img = (im.size)[0]
@@ -105,6 +111,11 @@ def bin_a_dec(binaire):
 
 # fonction qui decode le message cache dans l'image
 def decodage(image):
+    '''
+    La fonction décodage prend en argument un le chemin d'une image (encodée en utilisant la fonction 'encodage', elle est donc de format .png) et renvoie le message encodé dedans. De même, si l'image est dans le même dossier que le code, son nom suffira, dans le cas contraire, merci de fournir son chemin absolu entre guillemets
+    __________________________________
+    image: str
+    '''
     im = Image.open(image)
     im = im.convert('RGBA')
     w_img = (im.size)[0]
@@ -165,3 +176,6 @@ def decodage(image):
     for caractere in message_unicode:
         message += caractere
     return message
+
+
+encodage('/Users/marca/Desktop/VS Code/Trophee NSI/Trophee-NSI/Images/image de groupe encodée (Haute résolution).png','salut')
