@@ -1,0 +1,5 @@
+Les pré-requis de lancement:
+- Python version 3.12 ou plus
+- La librairie Tkinter (si elle n'est pas déjà installée)
+- Durant nos tests, L'interface Tkinter ne marchait pas sur macOS (elle cessait  de fonctionner quand on essayait de 
+sélectionner une image de notre ordinateur), il est donc préférable d'utiliser Windows
