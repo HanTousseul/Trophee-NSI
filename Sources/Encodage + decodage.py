@@ -22,7 +22,6 @@ def traitement_image(file, texte):
     im = im.convert('RGBA')
     w_img = (im.size)[0]
     h_img = (im.size)[1]
-    print(w_img,h_img)
     if len(texte)>((w_img*h_img)//3):
         return("Le message est trop long pour être encodé dans l'image, veuillez raccourcir votre message ou bien fournir une image ayant une résolution plus élevée")
     # la variable binaire est un string de binaire correspondant au texte donne en argument
