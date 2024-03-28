@@ -446,7 +446,7 @@ def telecharger():
     global image
     global name
     fileTypes = [("Image files", "*.png")]
-    path2 = filedialog.asksaveasfilename(filetypes=fileTypes, defaultextension=".png", initialfile='image encodee.png')
+    path2 = filedialog.asksaveasfilename(filetypes=fileTypes, defaultextension=".png", initialfile='image encodée.png')
     image.save(path2)
 
 
